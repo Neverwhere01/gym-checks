@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gym Checks – Plan Baloncesto</title>
+  <meta name="theme-color" content="#111827" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
+    body { margin: 0; background:#0b1220; color:#e5e7eb; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 16px; }
+    .card { background:#111827; border:1px solid #1f2937; border-radius:16px; padding:16px; margin:12px 0; }
+    h1 { font-size: 18px; margin: 0 0 6px; }
+    .sub { color:#9ca3af; font-size: 13px; margin: 0; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    select, button, input[type="text"] {
+      background:#0b1220; color:#e5e7eb; border:1px solid #374151; border-radius:12px;
+      padding:10px 12px; font-size: 15px;
+    }
+    button { cursor:pointer; }
+    button.primary { border-color:#60a5fa; }
+    .list { margin-top: 10px; }
+    .item {
+      display:flex; gap:10px; align-items:flex-start; padding:12px; border-radius:14px;
+      border:1px solid #1f2937; background:#0b1220; margin:8px 0;
+    }
+    .item.done { opacity: 0.85; border-color:#065f46; }
+    .item label { flex:1; }
+    .name { font-weight: 600; }
+    .meta { color:#9ca3af; font-size: 13px; margin-top: 2px; }
+    .note { margin-top:10px; }
+    .small { font-size: 12px; color:#9ca3af; }
+    .pill { padding:6px 10px; border:1px solid #374151; border-radius:999px; color:#9ca3af; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Plan 60’ – Baloncesto (Checks)</h1>
+      <p class="sub">Lun/Mié/Vie · Guarda tus checks en el móvil · Miércoles = activación (sin fatiga)</p>
+
+      <div class="row" style="margin-top:12px;">
+        <span class="pill" id="todayPill"></span>
+
+        <label class="row" style="gap:8px;">
+          <span class="small">Sesión</span>
+          <select id="daySelect"></select>
+        </label>
+
+        <button class="primary" id="resetSessionBtn">Reiniciar sesión</button>
+        <button id="resetAllBtn">Reiniciar todo</button>
+      </div>
+
+      <div class="note">
+        <div class="small">Nota rápida (se guarda)</div>
+        <input id="sessionNote" type="text" placeholder="Ej: “Buenas piernas”, “carga ligera”, etc." style="width:100%; margin-top:6px;" />
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div class="small">Checklist</div>
+          <div id="sessionTitle" style="font-size:16px; font-weight:700; margin-top:2px;"></div>
+        </div>
+        <div class="pill" id="progressPill"></div>
+      </div>
+
+      <div class="list" id="list"></div>
+    </div>
+
+    <div class="card">
+      <div class="small">
+        Tip: si lo instalas en “Pantalla de inicio” se abre como app. Si quieres, luego te lo convierto en app nativa (Expo/React Native).
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ====== DATOS (edita aquí tus ejercicios) ======
+  const PROGRAM = {
+    "Lunes – Fuerza base (Piernas + Tirón)": [
+      { name: "Activación", meta: "10’ · remo o airbike + movilidad cadera/tobillo + glúteos" },
+      { name: "Dumbbell lunge caminando", meta: "4 × 20 m · descanso 60–90”" },
+      { name: "Remo invertido (anillas)", meta: "4 × 8–10 · progresión a dominada" },
+      { name: "Peso muerto rumano", meta: "3 × 8 · control" },
+      { name: "Press inclinado mancuernas / fondos asistidos", meta: "3 × 8–10" },
+      { name: "Core + prevención", meta: "colgado 3 × 20–30” + plancha lateral 2 × 30”/lado" }
+    ],
+    "Miércoles – Activación + Potencia (Partido 22:00)": [
+      { name: "Activación", meta: "12’ · bici suave + movilidad dinámica" },
+      { name: "Comba", meta: "6 × 30” ON / 30” OFF" },
+      { name: "Sentadilla goblet ligera", meta: "3 × 6 · rápidas (sin fatiga)" },
+      { name: "Remo anillas", meta: "3 × 6–8 · RIR 2–3" },
+      { name: "Core + descarga", meta: "dead bug 3 × 8/lado + estiramientos" }
+    ],
+    "Viernes – Fuerza total + Estabilidad": [
+      { name: "Activación", meta: "10’ · airbike + movilidad global" },
+      { name: "Step-up con mancuernas", meta: "3 × 8 por lado" },
+      { name: "Press mancuernas neutro", meta: "3 × 8–10" },
+      { name: "Hip thrust", meta: "3 × 10" },
+      { name: "Remo polea o anillas", meta: "3 × 8–10" },
+      { name: "Core + tobillo", meta: "Pallof 3 × 10 + trabajo de tobillo" }
+    ]
+  };
+
+  // ====== STORAGE ======
+  const KEY = "gym_checks_v1";
+  const loadState = () => {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+    catch { return {}; }
+  }
+  const saveState = (s) => localStorage.setItem(KEY, JSON.stringify(s));
+
+  const state = loadState();
+
+  // ====== UI ======
+  const daySelect = document.getElementById("daySelect");
+  const listEl = document.getElementById("list");
+  const sessionTitleEl = document.getElementById("sessionTitle");
+  const progressPill = document.getElementById("progressPill");
+  const noteEl = document.getElementById("sessionNote");
+  const todayPill = document.getElementById("todayPill");
+
+  const sessions = Object.keys(PROGRAM);
+
+  // Suggest day by weekday (Europe/Madrid friendly enough)
+  const weekday = new Date().getDay(); // 0 Sun ... 6 Sat
+  const guessIndex = (weekday === 1) ? 0 : (weekday === 3) ? 1 : (weekday === 5) ? 2 : 0;
+
+  function fmtDate(d){
+    const dd = String(d.getDate()).padStart(2,"0");
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+  todayPill.textContent = `Hoy: ${fmtDate(new Date())}`;
+
+  sessions.forEach((s, i) => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    daySelect.appendChild(opt);
+  });
+
+  const getSessionKey = (sessionName) => sessionName; // stable
+
+  function getSessionState(sessionName){
+    const k = getSessionKey(sessionName);
+    if (!state[k]) state[k] = { checks: {}, note: "" };
+    return state[k];
+  }
+
+  function render(sessionName){
+    const items = PROGRAM[sessionName];
+    const ss = getSessionState(sessionName);
+
+    sessionTitleEl.textContent = sessionName;
+
+    // note
+    noteEl.value = ss.note || "";
+    noteEl.oninput = (e) => {
+      ss.note = e.target.value;
+      saveState(state);
+    };
+
+    listEl.innerHTML = "";
+    let doneCount = 0;
+
+    items.forEach((it, idx) => {
+      const id = String(idx);
+      const checked = !!ss.checks[id];
+      if (checked) doneCount++;
+
+      const row = document.createElement("div");
+      row.className = "item" + (checked ? " done" : "");
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = checked;
+      cb.style.transform = "scale(1.3)";
+      cb.style.marginTop = "3px";
+
+      cb.onchange = () => {
+        ss.checks[id] = cb.checked;
+        saveState(state);
+        render(sessionName);
+      };
+
+      const label = document.createElement("label");
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = it.name;
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = it.meta || "";
+
+      label.appendChild(name);
+      label.appendChild(meta);
+
+      row.appendChild(cb);
+      row.appendChild(label);
+      listEl.appendChild(row);
+    });
+
+    progressPill.textContent = `${doneCount}/${items.length} hechos`;
+  }
+
+  // init
+  daySelect.value = sessions[guessIndex];
+  render(daySelect.value);
+
+  daySelect.onchange = () => render(daySelect.value);
+
+  document.getElementById("resetSessionBtn").onclick = () => {
+    const s = daySelect.value;
+    const ss = getSessionState(s);
+    ss.checks = {};
+    ss.note = "";
+    saveState(state);
+    render(s);
+  };
+
+  document.getElementById("resetAllBtn").onclick = () => {
+    localStorage.removeItem(KEY);
+    location.reload();
+  };
+
+  // PWA service worker
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  }
+</script>
+</body>
+</html>
