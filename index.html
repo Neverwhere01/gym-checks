@@ -2,237 +2,536 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gym Checks – Plan Baloncesto</title>
-  <meta name="theme-color" content="#111827" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>JumpReady iPhone – Rutina Baloncesto</title>
+  <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="manifest.json" />
   <style>
-    :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
-    body { margin: 0; background:#0b1220; color:#e5e7eb; }
-    .wrap { max-width: 760px; margin: 0 auto; padding: 16px; }
-    .card { background:#111827; border:1px solid #1f2937; border-radius:16px; padding:16px; margin:12px 0; }
-    h1 { font-size: 18px; margin: 0 0 6px; }
-    .sub { color:#9ca3af; font-size: 13px; margin: 0; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    :root {
+      --bg: #020617;
+      --card: rgba(15, 23, 42, 0.8);
+      --line: rgba(148, 163, 184, 0.25);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #22d3ee;
+      --accent2: #a78bfa;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(34,211,238,0.2), transparent 30%),
+        radial-gradient(circle at 90% 0%, rgba(167,139,250,0.22), transparent 35%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 14px 14px 32px;
+    }
+
+    .glass {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 35px rgba(2, 6, 23, 0.45);
+      padding: 14px;
+      margin: 10px 0;
+    }
+
+    h1 { margin: 0; font-size: 1.1rem; }
+    .sub { color: var(--muted); font-size: 0.88rem; margin-top: 6px; }
+
+    .toolbar, .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      color: #bae6fd;
+      background: rgba(34, 211, 238, 0.08);
+    }
+
     select, button, input[type="text"] {
-      background:#0b1220; color:#e5e7eb; border:1px solid #374151; border-radius:12px;
-      padding:10px 12px; font-size: 15px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--text);
+      background: rgba(2, 6, 23, 0.6);
+      padding: 10px 12px;
+      font-size: 0.95rem;
     }
-    button { cursor:pointer; }
-    button.primary { border-color:#60a5fa; }
-    .list { margin-top: 10px; }
-    .item {
-      display:flex; gap:10px; align-items:flex-start; padding:12px; border-radius:14px;
-      border:1px solid #1f2937; background:#0b1220; margin:8px 0;
+
+    .toolbar select { flex: 1 1 220px; }
+    .toolbar button { width: auto; }
+    button { cursor: pointer; }
+    .primary {
+      border-color: rgba(34, 211, 238, 0.6);
+      background: rgba(34, 211, 238, 0.15);
     }
-    .item.done { opacity: 0.85; border-color:#065f46; }
-    .item label { flex:1; }
-    .name { font-weight: 600; }
-    .meta { color:#9ca3af; font-size: 13px; margin-top: 2px; }
-    .note { margin-top:10px; }
-    .small { font-size: 12px; color:#9ca3af; }
-    .pill { padding:6px 10px; border:1px solid #374151; border-radius:999px; color:#9ca3af; font-size: 12px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(80px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 8px;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .stat b { font-size: 1rem; }
+    .stat span { display: block; color: var(--muted); font-size: 0.75rem; margin-top: 4px; }
+
+    .exercise {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 10px;
+      background: rgba(2, 6, 23, 0.45);
+    }
+
+    .exercise.done { border-color: rgba(16, 185, 129, 0.75); }
+    .exercise-top { display: flex; gap: 10px; align-items: flex-start; }
+
+    .exercise input[type="checkbox"] {
+      transform: scale(1.25);
+      margin-top: 3px;
+      accent-color: #22d3ee;
+    }
+
+    .title { font-weight: 700; }
+    .meta { font-size: 0.84rem; color: var(--muted); margin-top: 3px; }
+
+    .steps {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+    .steps li { margin: 4px 0; }
+
+    .links { margin-top: 8px; font-size: 0.85rem; }
+    .links a {
+      color: #67e8f9;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(103, 232, 249, 0.6);
+    }
+
+    .graphic {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .graphic svg { width: 100%; height: auto; display: block; }
+
+    .section-tag {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      color: #a5f3fc;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+
+    .small { color: var(--muted); font-size: 0.78rem; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Plan 60’ – Baloncesto (Checks)</h1>
-      <p class="sub">Lun/Mié/Vie · Guarda tus checks en el móvil · Miércoles = activación (sin fatiga)</p>
-
-      <div class="row" style="margin-top:12px;">
+  <main class="app">
+    <section class="glass">
+      <h1>🏀 JumpReady iPhone</h1>
+      <p class="sub">Rutina de 3 semanas: lunes fuerte, miércoles partido + mini activación, jueves potencia/calidad. Checklist guardado en tu iPhone.</p>
+      <div class="toolbar">
         <span class="pill" id="todayPill"></span>
-
-        <label class="row" style="gap:8px;">
-          <span class="small">Sesión</span>
-          <select id="daySelect"></select>
-        </label>
-
-        <button class="primary" id="resetSessionBtn">Reiniciar sesión</button>
-        <button id="resetAllBtn">Reiniciar todo</button>
+        <select id="sessionSelect"></select>
+        <button class="primary" id="resetSession">Reiniciar sesión</button>
+        <button id="resetAll">Reiniciar todo</button>
       </div>
-
-      <div class="note">
-        <div class="small">Nota rápida (se guarda)</div>
-        <input id="sessionNote" type="text" placeholder="Ej: “Buenas piernas”, “carga ligera”, etc." style="width:100%; margin-top:6px;" />
+      <div class="stats">
+        <div class="stat"><b id="doneCount">0</b><span>Completados</span></div>
+        <div class="stat"><b id="pendingCount">0</b><span>Pendientes</span></div>
+        <div class="stat"><b id="completion">0%</b><span>Progreso</span></div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="row" style="justify-content:space-between;">
-        <div>
-          <div class="small">Checklist</div>
-          <div id="sessionTitle" style="font-size:16px; font-weight:700; margin-top:2px;"></div>
-        </div>
-        <div class="pill" id="progressPill"></div>
+      <div style="margin-top:10px;">
+        <div class="small">Nota de la sesión</div>
+        <input id="sessionNote" type="text" placeholder="Ej: piernas rápidas, tendón cargado, etc." />
       </div>
+    </section>
 
-      <div class="list" id="list"></div>
-    </div>
+    <section class="glass">
+      <div class="section-tag" id="sessionTag"></div>
+      <div id="sessionTitle" style="font-size:1.05rem; font-weight:700;"></div>
+      <div id="sessionSub" class="sub"></div>
+      <div id="exerciseList"></div>
+    </section>
 
-    <div class="card">
-      <div class="small">
-        Tip: si lo instalas en “Pantalla de inicio” se abre como app. Si quieres, luego te lo convierto en app nativa (Expo/React Native).
-      </div>
-    </div>
-  </div>
+    <section class="glass small">
+      Instálala en iPhone: Safari → Compartir → “Añadir a pantalla de inicio”. Se abre como app (PWA).
+    </section>
+  </main>
 
-<script>
-  // ====== DATOS (edita aquí tus ejercicios) ======
-  const PROGRAM = {
-    "Lunes – Fuerza base (Piernas + Tirón)": [
-      { name: "Activación", meta: "10’ · remo o airbike + movilidad cadera/tobillo + glúteos" },
-      { name: "Dumbbell lunge caminando", meta: "4 × 20 m · descanso 60–90”" },
-      { name: "Remo invertido (anillas)", meta: "4 × 8–10 · progresión a dominada" },
-      { name: "Peso muerto rumano", meta: "3 × 8 · control" },
-      { name: "Press inclinado mancuernas / fondos asistidos", meta: "3 × 8–10" },
-      { name: "Core + prevención", meta: "colgado 3 × 20–30” + plancha lateral 2 × 30”/lado" }
-    ],
-    "Miércoles – Activación + Potencia (Partido 22:00)": [
-      { name: "Activación", meta: "12’ · bici suave + movilidad dinámica" },
-      { name: "Comba", meta: "6 × 30” ON / 30” OFF" },
-      { name: "Sentadilla goblet ligera", meta: "3 × 6 · rápidas (sin fatiga)" },
-      { name: "Remo anillas", meta: "3 × 6–8 · RIR 2–3" },
-      { name: "Core + descarga", meta: "dead bug 3 × 8/lado + estiramientos" }
-    ],
-    "Viernes – Fuerza total + Estabilidad": [
-      { name: "Activación", meta: "10’ · airbike + movilidad global" },
-      { name: "Step-up con mancuernas", meta: "3 × 8 por lado" },
-      { name: "Press mancuernas neutro", meta: "3 × 8–10" },
-      { name: "Hip thrust", meta: "3 × 10" },
-      { name: "Remo polea o anillas", meta: "3 × 8–10" },
-      { name: "Core + tobillo", meta: "Pallof 3 × 10 + trabajo de tobillo" }
-    ]
-  };
-
-  // ====== STORAGE ======
-  const KEY = "gym_checks_v1";
-  const loadState = () => {
-    try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
-    catch { return {}; }
-  }
-  const saveState = (s) => localStorage.setItem(KEY, JSON.stringify(s));
-
-  const state = loadState();
-
-  // ====== UI ======
-  const daySelect = document.getElementById("daySelect");
-  const listEl = document.getElementById("list");
-  const sessionTitleEl = document.getElementById("sessionTitle");
-  const progressPill = document.getElementById("progressPill");
-  const noteEl = document.getElementById("sessionNote");
-  const todayPill = document.getElementById("todayPill");
-
-  const sessions = Object.keys(PROGRAM);
-
-  // Suggest day by weekday (Europe/Madrid friendly enough)
-  const weekday = new Date().getDay(); // 0 Sun ... 6 Sat
-  const guessIndex = (weekday === 1) ? 0 : (weekday === 3) ? 1 : (weekday === 5) ? 2 : 0;
-
-  function fmtDate(d){
-    const dd = String(d.getDate()).padStart(2,"0");
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const yyyy = d.getFullYear();
-    return `${dd}/${mm}/${yyyy}`;
-  }
-  todayPill.textContent = `Hoy: ${fmtDate(new Date())}`;
-
-  sessions.forEach((s, i) => {
-    const opt = document.createElement("option");
-    opt.value = s;
-    opt.textContent = s;
-    daySelect.appendChild(opt);
-  });
-
-  const getSessionKey = (sessionName) => sessionName; // stable
-
-  function getSessionState(sessionName){
-    const k = getSessionKey(sessionName);
-    if (!state[k]) state[k] = { checks: {}, note: "" };
-    return state[k];
-  }
-
-  function render(sessionName){
-    const items = PROGRAM[sessionName];
-    const ss = getSessionState(sessionName);
-
-    sessionTitleEl.textContent = sessionName;
-
-    // note
-    noteEl.value = ss.note || "";
-    noteEl.oninput = (e) => {
-      ss.note = e.target.value;
-      saveState(state);
+  <script>
+    const SESSIONS = {
+      "Lunes — Fuerza útil + salto + primer paso": {
+        tag: "Sesión fuerte · 65-75 min",
+        subtitle: "Prioridad: calidad en saltos, fuerza bilateral/unilateral y aceleración.",
+        exercises: [
+          {
+            name: "Calentamiento fijo",
+            meta: "10-12 min",
+            steps: [
+              "3 min bici o remo suave",
+              "Movilidad: tobillo a pared, rockback aductor, zancada con rotación, flexor cadera dinámico",
+              "Activación: mini-band lateral walk, glute bridge, dead bug",
+              "Explosivo: pogo jumps + skipping A + 2 saltos al aro al 70-80%"
+            ],
+            youtube: "https://www.youtube.com/results?search_query=dynamic+warm+up+basketball+mobility"
+          },
+          {
+            name: "Countermovement jump / Box jump bajo",
+            meta: "4 x 3 · descanso 45-60 s",
+            steps: ["Pocas repeticiones", "Todas rápidas", "Si baja la altura de salto, corta la serie"],
+            youtube: "https://www.youtube.com/results?search_query=countermovement+jump+technique"
+          },
+          {
+            name: "Trap Bar Deadlift + 2 saltos máximos",
+            meta: "A1: 4 x 3 (RIR 2) + 20 s + A2: 2 saltos + 2-3 min descanso",
+            steps: ["Empuja el suelo", "Mantén columna neutra", "Tras 20 s haz 2 saltos máximos"],
+            youtube: "https://www.youtube.com/results?search_query=trap+bar+deadlift+for+athletes"
+          },
+          {
+            name: "Rear-foot elevated split squat",
+            meta: "3 x 6 por pierna · descanso 75-90 s",
+            steps: ["Bajada controlada", "Subida rápida", "Rodilla alineada con pie"],
+            youtube: "https://www.youtube.com/results?search_query=rear+foot+elevated+split+squat+form"
+          },
+          {
+            name: "Romanian deadlift",
+            meta: "3 x 6 · descanso 90 s",
+            steps: ["Bisagra de cadera", "Espalda larga", "Tensión en glúteo/isquio"],
+            youtube: "https://www.youtube.com/results?search_query=romanian+deadlift+technique"
+          },
+          {
+            name: "Sled push pesado",
+            meta: "6 x 15 m · vuelta andando + 45-60 s",
+            steps: ["Pecho ligeramente inclinado", "Espinilla adelantada", "Empuja el suelo hacia atrás"],
+            youtube: "https://www.youtube.com/results?search_query=heavy+sled+push+technique"
+          },
+          {
+            name: "Remo chest-supported",
+            meta: "3 x 8",
+            steps: ["Tira con codo", "Escápulas atrás y abajo", "Control en la bajada"],
+            youtube: "https://www.youtube.com/results?search_query=chest+supported+row+form"
+          },
+          {
+            name: "Gemelo de pie + Pallof press",
+            meta: "3 x 10 (2 s arriba) + 3 x 10/lado",
+            steps: ["Gemelo: pausa arriba", "Pallof: cadera estable, no rotar"],
+            youtube: "https://www.youtube.com/results?search_query=pallof+press+exercise+tutorial"
+          }
+        ]
+      },
+      "Miércoles — Partido 22:30 + mini activación": {
+        tag: "Activación · 6 min",
+        subtitle: "Sin fatiga: solo despertar sistema nervioso antes de jugar.",
+        exercises: [
+          {
+            name: "Pogo jumps",
+            meta: "2 x 10",
+            steps: ["Contactos rápidos", "Talón casi no toca suelo", "Postura alta"],
+            youtube: "https://www.youtube.com/results?search_query=pogo+jumps+exercise"
+          },
+          {
+            name: "Aceleraciones",
+            meta: "2 x 10 m",
+            steps: ["Sal fuerte", "Primeros pasos cortos y potentes", "No llegar fatigado"],
+            youtube: "https://www.youtube.com/results?search_query=10m+acceleration+drill+basketball"
+          },
+          {
+            name: "Approach jumps 85-90%",
+            meta: "3 saltos",
+            steps: ["2-3 pasos de aproximación", "Coordina brazo + cadera", "Caída estable"],
+            youtube: "https://www.youtube.com/results?search_query=approach+jump+basketball+technique"
+          },
+          {
+            name: "Deslizamientos laterales",
+            meta: "10 por lado",
+            steps: ["Centro de gravedad bajo", "Pies activos", "Sin cruzar piernas"],
+            youtube: "https://www.youtube.com/results?search_query=defensive+slides+basketball+drill"
+          },
+          {
+            name: "Salidas desde triple amenaza",
+            meta: "2 salidas rápidas",
+            steps: ["Carga en pierna interior", "Primer paso agresivo", "Control al frenar"],
+            youtube: "https://www.youtube.com/results?search_query=triple+threat+first+step+basketball"
+          }
+        ]
+      },
+      "Jueves — Potencia, reactividad y transferencia": {
+        tag: "Sesión calidad · 55-65 min",
+        subtitle: "Menos castigo que el lunes, más velocidad y transferencia.",
+        exercises: [
+          {
+            name: "Calentamiento fijo",
+            meta: "10-12 min (igual que lunes)",
+            steps: ["Mismo protocolo del lunes para consistencia"],
+            youtube: "https://www.youtube.com/results?search_query=dynamic+warm+up+basketball+mobility"
+          },
+          {
+            name: "Approach jump (aro o tablero)",
+            meta: "5 x 2 · descanso 45-60 s",
+            steps: ["Como en partido", "2-3 pasos y arriba", "Calidad > cantidad"],
+            youtube: "https://www.youtube.com/results?search_query=approach+jump+drill"
+          },
+          {
+            name: "DB jump shrug",
+            meta: "4 x 4 · descanso 75 s",
+            steps: ["Mancuernas ligeras", "Triple extensión rápida", "Brazos largos"],
+            youtube: "https://www.youtube.com/results?search_query=dumbbell+jump+shrug+exercise"
+          },
+          {
+            name: "Step-up alto con impulso de rodilla",
+            meta: "3 x 5 por pierna · descanso 60-75 s",
+            steps: ["Subida potente", "Rodilla arriba", "Bajada lenta/controlada"],
+            youtube: "https://www.youtube.com/results?search_query=high+step+up+knee+drive"
+          },
+          {
+            name: "Lateral bound + stick",
+            meta: "3 x 4 por lado",
+            steps: ["Salto lateral potente", "Caída estable 1 s", "Rodilla firme"],
+            youtube: "https://www.youtube.com/results?search_query=lateral+bound+stick+landing"
+          },
+          {
+            name: "Sled sprint ligero-moderado",
+            meta: "6 x 10 m",
+            steps: ["Salida desde triple amenaza o split stance", "Empuje horizontal", "Recuperación completa"],
+            youtube: "https://www.youtube.com/results?search_query=light+sled+sprint+drill"
+          },
+          {
+            name: "Press inclinado + jalón/dominada asistida",
+            meta: "3 x 6-8 + 3 x 6-8",
+            steps: ["Tren superior justo", "Ritmo controlado", "No robar energía a piernas"],
+            youtube: "https://www.youtube.com/results?search_query=incline+dumbbell+press+and+lat+pulldown"
+          },
+          {
+            name: "Copenhagen plank + face pull",
+            meta: "2 x 20 s/lado + 2 x 12-15",
+            steps: ["Cadera alineada en Copenhagen", "Face pull con codos altos"],
+            youtube: "https://www.youtube.com/results?search_query=copenhagen+plank+face+pull+exercise"
+          }
+        ]
+      },
+      "Jueves (si estás cargado del partido) — Versión reducida": {
+        tag: "Plan B · descarga",
+        subtitle: "Usa este modo si notas rotuliano/Aquiles cargados o fatiga alta.",
+        exercises: [
+          { name: "Approach jump", meta: "3 x 2", steps: ["Calidad alta", "Si molesta tendón, recorta"], youtube: "https://www.youtube.com/results?search_query=approach+jump+basketball+technique" },
+          { name: "DB jump shrug", meta: "3 x 4", steps: ["Ligero y veloz"], youtube: "https://www.youtube.com/results?search_query=dumbbell+jump+shrug+exercise" },
+          { name: "Step-up", meta: "2 x 5 por pierna", steps: ["Sube fuerte, baja controlado"], youtube: "https://www.youtube.com/results?search_query=step+up+exercise+proper+form" },
+          { name: "Sled sprint", meta: "4 x 10 m", steps: ["Salidas limpias", "Recupera completo"], youtube: "https://www.youtube.com/results?search_query=sled+sprint+drill" },
+          { name: "Press inclinado + jalón + core", meta: "igual que sesión normal", steps: ["Sin fatiga excesiva"], youtube: "https://www.youtube.com/results?search_query=incline+press+lat+pulldown+core" }
+        ]
+      }
     };
 
-    listEl.innerHTML = "";
-    let doneCount = 0;
+    const STORAGE_KEY = "jump_ready_v2";
 
-    items.forEach((it, idx) => {
-      const id = String(idx);
-      const checked = !!ss.checks[id];
-      if (checked) doneCount++;
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+      catch { return {}; }
+    }
 
-      const row = document.createElement("div");
-      row.className = "item" + (checked ? " done" : "");
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
 
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = checked;
-      cb.style.transform = "scale(1.3)";
-      cb.style.marginTop = "3px";
+    const state = loadState();
 
-      cb.onchange = () => {
-        ss.checks[id] = cb.checked;
+    const todayPill = document.getElementById("todayPill");
+    const sessionSelect = document.getElementById("sessionSelect");
+    const sessionTag = document.getElementById("sessionTag");
+    const sessionTitle = document.getElementById("sessionTitle");
+    const sessionSub = document.getElementById("sessionSub");
+    const exerciseList = document.getElementById("exerciseList");
+    const doneCount = document.getElementById("doneCount");
+    const pendingCount = document.getElementById("pendingCount");
+    const completion = document.getElementById("completion");
+    const sessionNote = document.getElementById("sessionNote");
+
+    const sessionNames = Object.keys(SESSIONS);
+
+    function sessionState(name) {
+      if (!state[name]) state[name] = { checks: {}, note: "" };
+      return state[name];
+    }
+
+    function fmtDate(d) {
+      return d.toLocaleDateString("es-ES", { weekday: "short", day: "2-digit", month: "2-digit" });
+    }
+
+    function graphicSVG(title) {
+      const tag = title.slice(0, 16);
+      return `
+      <svg viewBox="0 0 520 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="gráfico ejercicio">
+        <defs>
+          <linearGradient id="g" x1="0" x2="1">
+            <stop offset="0%" stop-color="#22d3ee" stop-opacity=".2"/>
+            <stop offset="100%" stop-color="#a78bfa" stop-opacity=".22"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="520" height="120" fill="url(#g)"/>
+        <g fill="none" stroke="#67e8f9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="70" cy="35" r="10"/><path d="M70 45 L70 75 L52 96 M70 75 L88 96 M70 58 L50 68 M70 58 L88 68"/>
+          <path d="M135 62 H220"/><path d="M205 50 L220 62 L205 74"/>
+          <circle cx="285" cy="32" r="10"/><path d="M285 42 L285 76 L268 94 M285 76 L304 94 M285 56 L264 64 M285 56 L306 64"/>
+          <path d="M345 62 H430"/><path d="M415 50 L430 62 L415 74"/>
+          <circle cx="470" cy="28" r="10"/><path d="M470 38 L470 72 L452 92 M470 72 L488 92 M470 50 L448 58 M470 50 L492 58"/>
+        </g>
+        <text x="16" y="112" fill="#cbd5e1" font-size="14">Guía visual 3 fases · ${tag}</text>
+      </svg>`;
+    }
+
+    function render(name) {
+      const session = SESSIONS[name];
+      const sState = sessionState(name);
+
+      sessionTag.textContent = session.tag;
+      sessionTitle.textContent = name;
+      sessionSub.textContent = session.subtitle;
+
+      sessionNote.value = sState.note || "";
+      sessionNote.oninput = (e) => {
+        sState.note = e.target.value;
         saveState(state);
-        render(sessionName);
       };
 
-      const label = document.createElement("label");
+      let done = 0;
+      exerciseList.innerHTML = "";
 
-      const name = document.createElement("div");
-      name.className = "name";
-      name.textContent = it.name;
+      session.exercises.forEach((ex, index) => {
+        const key = String(index);
+        const checked = Boolean(sState.checks[key]);
+        if (checked) done++;
 
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      meta.textContent = it.meta || "";
+        const card = document.createElement("article");
+        card.className = "exercise" + (checked ? " done" : "");
 
-      label.appendChild(name);
-      label.appendChild(meta);
+        const top = document.createElement("div");
+        top.className = "exercise-top";
 
-      row.appendChild(cb);
-      row.appendChild(label);
-      listEl.appendChild(row);
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = checked;
+        cb.onchange = () => {
+          sState.checks[key] = cb.checked;
+          saveState(state);
+          render(name);
+        };
+
+        const body = document.createElement("div");
+        body.style.flex = "1";
+
+        const title = document.createElement("div");
+        title.className = "title";
+        title.textContent = ex.name;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = ex.meta;
+
+        body.appendChild(title);
+        body.appendChild(meta);
+
+        const list = document.createElement("ol");
+        list.className = "steps";
+        ex.steps.forEach(step => {
+          const li = document.createElement("li");
+          li.textContent = step;
+          list.appendChild(li);
+        });
+        body.appendChild(list);
+
+        const links = document.createElement("div");
+        links.className = "links";
+        if (ex.youtube) {
+          links.innerHTML = `▶️ <a href="${ex.youtube}" target="_blank" rel="noopener">Ver ejemplo práctico en YouTube</a>`;
+        } else {
+          links.textContent = "Sin vídeo directo: usa el gráfico de abajo + pasos.";
+        }
+        body.appendChild(links);
+
+        if (!ex.youtube) {
+          const g = document.createElement("div");
+          g.className = "graphic";
+          g.innerHTML = graphicSVG(ex.name);
+          body.appendChild(g);
+        }
+
+        top.appendChild(cb);
+        top.appendChild(body);
+        card.appendChild(top);
+        exerciseList.appendChild(card);
+      });
+
+      const total = session.exercises.length;
+      const pending = total - done;
+      doneCount.textContent = done;
+      pendingCount.textContent = pending;
+      completion.textContent = `${Math.round((done / total) * 100)}%`;
+    }
+
+    todayPill.textContent = `Hoy · ${fmtDate(new Date())}`;
+
+    sessionNames.forEach((name) => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      sessionSelect.appendChild(opt);
     });
 
-    progressPill.textContent = `${doneCount}/${items.length} hechos`;
-  }
+    const weekday = new Date().getDay();
+    const preferred = weekday === 1 ? sessionNames[0] : weekday === 3 ? sessionNames[1] : weekday === 4 ? sessionNames[2] : sessionNames[0];
+    sessionSelect.value = preferred;
+    render(preferred);
 
-  // init
-  daySelect.value = sessions[guessIndex];
-  render(daySelect.value);
+    sessionSelect.onchange = () => render(sessionSelect.value);
 
-  daySelect.onchange = () => render(daySelect.value);
+    document.getElementById("resetSession").onclick = () => {
+      const current = sessionSelect.value;
+      state[current] = { checks: {}, note: "" };
+      saveState(state);
+      render(current);
+    };
 
-  document.getElementById("resetSessionBtn").onclick = () => {
-    const s = daySelect.value;
-    const ss = getSessionState(s);
-    ss.checks = {};
-    ss.note = "";
-    saveState(state);
-    render(s);
-  };
+    document.getElementById("resetAll").onclick = () => {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    };
 
-  document.getElementById("resetAllBtn").onclick = () => {
-    localStorage.removeItem(KEY);
-    location.reload();
-  };
-
-  // PWA service worker
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(()=>{});
-  }
-</script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+  </script>
 </body>
 </html>
