@@ -1,9 +1,9 @@
 {
-  "name": "Gym Checks – Plan Baloncesto",
-  "short_name": "GymChecks",
+  "name": "JumpReady iPhone – Rutina Baloncesto",
+  "short_name": "JumpReady",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#111827",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
   "icons": []
 }
